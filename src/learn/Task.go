@@ -1,21 +1,21 @@
 package learn
 
 type Task struct {
+	Capacity int
+	Total int
 }
 
-func (t Task) FindShortestCombination(n int, k int) int {
-	var listTest []int
+func (t Task) FindShortestCombination(task Task) int {
 	count := 0
-	temp := k
-	if n == k {
+	temp := task.Total
+	if task.Capacity == task.Total {
 		return 1
 	}
 
-	for index := n; index >= 1; index-- {
+	for index := task.Capacity; index >= 1; index-- {
 		if temp >= index {
 			temp = temp - index
 			count++
-			listTest = append(listTest, index)
 		} else {
 			continue
 		}
