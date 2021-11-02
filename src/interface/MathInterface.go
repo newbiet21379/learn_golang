@@ -1,4 +1,4 @@
-package _struct
+package _interface
 
 import (
 	"math"

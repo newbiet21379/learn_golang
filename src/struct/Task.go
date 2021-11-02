@@ -1,4 +1,4 @@
-package learn
+package _struct
 
 type Task struct {
 	Capacity int
