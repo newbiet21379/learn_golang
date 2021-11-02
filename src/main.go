@@ -8,9 +8,9 @@ import (
 )
 func main() {
 	var taskInterface _struct.TaskInterface
-
+	// interface {} can receive any Type
 	taskInterface = learn.Task{Capacity: 5, Total: 10} // Type Task implements Task Interface
-	getTask := taskInterface.(learn.Task)
+	getTask, _ := taskInterface.(learn.Task)
 	fmt.Println("Shortest Combination:",taskInterface.FindShortestCombination(getTask))
 	fmt.Println("Short SubString:",taskInterface.ShortestSubString("abaabaaabaa"))
 	fmt.Println("Absolute", _struct.MyFloat(-math.Sqrt2).Abs())
