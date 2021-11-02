@@ -1,9 +1,9 @@
-package main
+package learn
 
-import (
-	"fmt"
-)
-func findShortestCombination( n int , k int) int {
+type Task struct {
+}
+
+func (t Task) FindShortestCombination(n int, k int) int {
 	var listTest []int
 	count := 0
 	temp := k
@@ -28,7 +28,7 @@ func findShortestCombination( n int , k int) int {
 	}
 }
 
-func ShortestSubString(input string) int{
+func (t Task) ShortestSubString(input string) int{
 	var allSubString []string
 	for i := 0;i < len(input);i++{
 		for j := i+1;j<=len(input);j++{
@@ -58,9 +58,3 @@ func ShortestSubString(input string) int{
 	return len(minText)
 }
 
-func main() {
-	fmt.Println(findShortestCombination(5,10))
-	fmt.Println(findShortestCombination(10,55))
-	fmt.Println(findShortestCombination(5,15))
-	fmt.Println(ShortestSubString("aabbbabaaa"))
-}
