@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/newbiet21379/learn_golang/interface"
-	"github.com/newbiet21379/learn_golang/struct"
+	"github.com/newbiet21379/learn_golang/src/interface"
+	"github.com/newbiet21379/learn_golang/src/struct"
 	"math"
 )
 func main() {

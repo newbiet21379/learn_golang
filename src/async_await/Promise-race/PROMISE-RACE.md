@@ -1,0 +1,3 @@
+Sometimes, a piece of data can be received from several sources to avoid high latencies, or there’re cases that multiple results are generated but they’re equivalent and the only first response is consumed. This first-response-win pattern, therefore, is quite popular. Achieving that in both JavaScript and Go is very simple.
+
+`select-case` is the pattern that Go designed specifically for racing channel operations. We can even do more stuff within each case, but we’re focusing only on the result so we just leave them all empty.
