@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-// JavaScript
-
-// ---
-
+//JavaScript
+//
+//---
+//
 //const longRunningTask = async () => {
 //
-// simulate a workload
+////simulate a workload
 //
 //sleep(3000);
 //
@@ -22,7 +22,7 @@ import (
 //const r = await longRunningTask();
 //console.log(r);
 
-func longRunningTask() <-chan int32 {
+func LongRunningTask() <-chan int32 {
 	r := make(chan int32)
 
 	go func() {
@@ -37,6 +37,6 @@ func longRunningTask() <-chan int32 {
 }
 
 func main() {
-	r := <-longRunningTask()
+	r := <-LongRunningTask()
 	fmt.Println(r)
 }

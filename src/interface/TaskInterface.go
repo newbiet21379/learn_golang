@@ -1,6 +1,6 @@
 package _interface
 import (
-	"github.com/newbiet21379/learn_golang/struct"
+	"github.com/newbiet21379/learn_golang/src/struct"
 )
 type TaskInterface interface {
 	FindShortestCombination( task _struct.Task ) int
