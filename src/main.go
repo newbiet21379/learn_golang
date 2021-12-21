@@ -1,38 +1,68 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strconv"
 	"time"
 )
 
-type Person struct {
-	name string
-	age  int
+type Rating struct {
+	Rate  float32 `json:"rate"`
+	Count int     `json:"count"`
+}
+type Product struct {
+	Id          int     `json:"id"`
+	Title       string  `json:"title"`
+	Price       float32 `json:"price"`
+	Description string  `json:"description"`
+	Category    string  `json:"category"`
+	Image       string  `json:"image"`
+	Rate        Rating  `json:"rating"`
 }
 
 func main() {
 	started := time.Now()
-	foods := []string{"mushroom pizza", "pasta", "kebab", "cake"}
-	foodChan := make(chan string)
+	url := "https://fakestoreapi.com/products"
+
 	//var wg sync.WaitGroup
-	//wg.Add(len(foods))
-	for _, food := range foods {
-		//cook(food)
-		go func(food string) {
-			foodChan <- cook(food)
-			//wg.Done()
-		}(food)
+	//wg.Add(1)
+
+	var products []Product
+	var temp Product
+	json.Unmarshal([]byte(fetch(url)), &products)
+	fetchProduct := make(chan Product, len(products))
+	for _, item := range products {
+		go func(item Product) {
+
+			err := json.Unmarshal([]byte(fetch(url+"/"+strconv.Itoa(item.Id))), &temp)
+			if err != nil {
+				return
+			}
+			fetchProduct <- temp
+		}(item)
 	}
+	close(fetchProduct)
 	//wg.Wait()
-	for i := 0; i < len(foods); i++ {
-		fmt.Printf("Channel value : %v\n", <-foodChan)
+	for i := range fetchProduct {
+		fmt.Printf("Product :%#v\n", i)
 	}
-	close(foodChan)
-	fmt.Printf("Done in %v\n", time.Since(started))
+	fmt.Printf("Done in %v \n", time.Since(started))
+
 }
 
-func cook(food string) string {
-	fmt.Printf("cooking %s...\n", food)
-	time.Sleep(2 * time.Second)
-	return fmt.Sprintf("done cooking %s\n", food)
+func fetch(url string) string {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "Something is wrong"
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "Something is wrong"
+	}
+	resp.Body.Close()
+	return string(body)
 }
