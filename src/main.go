@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	_ "sync"
 	"time"
 )
 
@@ -25,44 +26,75 @@ type Product struct {
 
 func main() {
 	started := time.Now()
-	url := "https://fakestoreapi.com/products"
-
+	urlAll := "https://fakestoreapi.com/products"
+	//ctx , cancel := context.WithCancel(context.Background())
 	//var wg sync.WaitGroup
-	//wg.Add(1)
 
-	var products []Product
-	var temp Product
-	json.Unmarshal([]byte(fetch(url)), &products)
-	fetchProduct := make(chan Product, len(products))
+	var (
+		products []Product
+		urls     []string
+	)
+
+	json.Unmarshal([]byte(fetch(urlAll)), &products)
+	productChannel := make(chan Product)
+	done := make(chan int)
+	//wg.Add(len(products))
+
 	for _, item := range products {
-		go func(item Product) {
+		urls = append(urls, urlAll+"/"+strconv.Itoa(item.Id))
+	}
 
-			err := json.Unmarshal([]byte(fetch(url+"/"+strconv.Itoa(item.Id))), &temp)
-			if err != nil {
-				return
-			}
-			fetchProduct <- temp
-		}(item)
+	for _, url := range urls {
+		go mapFromURL(url, done, productChannel)
 	}
-	close(fetchProduct)
+
 	//wg.Wait()
-	for i := range fetchProduct {
-		fmt.Printf("Product :%#v\n", i)
+	//close(productChannel)
+	for i := len(urls); i > 0; {
+		select {
+		case v := <-productChannel:
+			fmt.Printf("From Channel :%+v\n", v)
+		case <-done:
+			i--
+		}
 	}
+
 	fmt.Printf("Done in %v \n", time.Since(started))
 
 }
 
-func fetch(url string) string {
-	resp, err := http.Get(url)
+func mapFromURL(url string, done chan<- int, q chan<- Product) {
+	var product Product
+	res := fetch(url)
+	err := json.Unmarshal([]byte(res), &product)
 	if err != nil {
+		return
+	}
+	q <- product
+	done <- 1
+}
+
+func fetch(url string) string {
+	productClient := http.Client{
+		Timeout: 2 * time.Second,
+	}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return "Something is wrong"
+	}
+	res, getErr := productClient.Do(req)
+	if getErr != nil {
+		return "Something is wrong"
+	}
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
 		return "Something is wrong"
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "Something is wrong"
-	}
-	resp.Body.Close()
 	return string(body)
 }
