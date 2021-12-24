@@ -47,6 +47,19 @@ func FanIn(input1, input2 <-chan string) <-chan string {
 	return c
 }
 
+func FanInSelect(input1, input2 <-chan string) <-chan string {
+	c := make(chan string)
+	go func() {
+		select {
+		case s := <-input1:
+			c <- s
+		case s := <-input2:
+			c <- s
+		}
+	}()
+	return c
+}
+
 // Using c as the channel to listen to whoever ready to talk between the 2 input
 func FanInMessaging(input1, input2 <-chan entity.Message) <-chan entity.Message {
 	c := make(chan entity.Message)
