@@ -1,4 +1,4 @@
-module Learn_Golang
+module github.com/newbiet21379/learn_golang
 
 go 1.17
 
