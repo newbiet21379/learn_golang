@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	height := []int{1, 8, 6, 2, 5, 4, 8, 3, 7}
-	fmt.Println(leetcode.MaxArea(height))
+	s := "is2 sentence4 This1 a3"
+	fmt.Println(leetcode.SortSentence(s))
 }
