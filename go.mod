@@ -2,4 +2,11 @@ module github.com/newbiet21379/learn_golang
 
 go 1.17
 
-require github.com/nsf/gocode v0.0.0-20190302080247-5bee97b48836 // indirect
+require github.com/inancgumus/prettyslice v0.0.0-20190305220808-d802ba58098f
+
+require (
+	github.com/fatih/color v1.13.0 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+)
