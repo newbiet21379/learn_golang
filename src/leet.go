@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	s := "is2 sentence4 This1 a3"
-	fmt.Println(leetcode.SortSentence(s))
+	s := []int{1, 0, 0, 0, 0, 1}
+	fmt.Println(leetcode.CanPlaceFlowers(s, 2))
 }
