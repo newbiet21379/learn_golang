@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	s := []int{1, 0, 0, 0, 0, 1}
-	fmt.Println(leetcode.CanPlaceFlowers(s, 2))
+	s := "02:05:45AM"
+	fmt.Println(leetcode.TimeConversion(s))
 }
