@@ -6,6 +6,5 @@ import (
 )
 
 func main() {
-	s := "02:05:45AM"
-	fmt.Println(leetcode.TimeConversion(s))
+	fmt.Println(leetcode.TwoSum([]int{-1, -2, -3, -4, -5}, -8))
 }
