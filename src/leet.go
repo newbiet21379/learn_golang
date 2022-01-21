@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	fmt.Println(leetcode.TwoSum([]int{-1, -2, -3, -4, -5}, -8))
+	fmt.Println(leetcode.Merge([][]int{{1, 4}, {0, 2}, {3, 5}}))
 }
