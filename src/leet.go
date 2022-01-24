@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	fmt.Println(leetcode.Merge([][]int{{1, 4}, {0, 2}, {3, 5}}))
+	fmt.Println(leetcode.FindMinHard([]int{4, 5, 6, 7, 0, 1, 4}))
 }
