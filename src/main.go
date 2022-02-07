@@ -1,119 +1,65 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	_ "sync"
-	"time"
+	socketio "github.com/googollee/go-socket.io"
+	"github.com/labstack/echo"
+	"log"
 )
 
-type Rating struct {
-	Rate  float32 `json:"rate"`
-	Count int     `json:"count"`
-}
-type Product struct {
-	Id          int     `json:"id"`
-	Title       string  `json:"title"`
-	Price       float32 `json:"price"`
-	Description string  `json:"description"`
-	Category    string  `json:"category"`
-	Image       string  `json:"image"`
-	Rate        Rating  `json:"rating"`
-}
-
 func main() {
-	started := time.Now()
-	urlAll := "https://fakestoreapi.com/products"
+	server := socketio.NewServer(nil)
 
-	var (
-		products []Product
-		urls     []string
-		//fetchList []Product
-	)
+	server.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		log.Println("connected:", s.ID())
+		return nil
+	})
 
-	err := json.Unmarshal([]byte(fetch(urlAll)), &products)
-	if err != nil {
-		return
-	}
-	productChannel := make(chan Product)
-	done := make(chan int)
+	server.OnEvent("/", "notice", func(s socketio.Conn, msg string) {
+		log.Println("notice:", msg)
+		s.Emit("reply", "have "+msg)
+	})
 
-	for _, item := range products {
-		urls = append(urls, urlAll+"/"+strconv.Itoa(item.Id))
-	}
+	server.OnEvent("/chat", "msg", func(s socketio.Conn, msg string) string {
+		s.SetContext(msg)
+		return "recv " + msg
+	})
 
-	for _, url := range urls {
-		//mapFromURLSync(url, &fetchList)
-		go mapFromURL(url, done, productChannel)
-	}
+	server.OnEvent("/", "echo", func(s socketio.Conn, msg interface{}) {
+		s.Emit("echo", msg)
+	})
 
-	//for i, p := range fetchList {
-	//	fmt.Printf("Product index : %d and Value :%+v", i, p)
-	//}
-	for i := len(urls); i > 0; {
-		select {
-		case v := <-productChannel:
-			fmt.Printf("From Channel :%+v\n", v)
-		case <-done:
-			i--
-		}
-	}
+	server.OnEvent("/", "bye", func(s socketio.Conn) string {
+		last := s.Context().(string)
+		s.Emit("bye", last)
+		s.Close()
+		return last
+	})
 
-	fmt.Printf("Done in %v \n", time.Since(started))
+	server.OnError("/", func(s socketio.Conn, e error) {
+		log.Println("meet error:", e)
+	})
 
-}
+	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
+		log.Println("closed", reason)
+	})
 
-func mapFromURLSync(url string, products *[]Product) {
-	var product Product
-	res := fetch(url)
-	err := json.Unmarshal([]byte(res), &product)
-	if err != nil {
-		return
-	}
-	*products = append(*products, product)
-}
+	go server.Serve()
+	defer server.Close()
 
-func mapFromURL(url string, done chan<- int, q chan<- Product) {
-	var product Product
-	res := fetch(url)
-	err := json.Unmarshal([]byte(res), &product)
-	if err != nil {
-		return
-	}
-	q <- product
-	done <- 1
-}
+	e := echo.New()
+	e.HideBanner = true
 
-func fetch(url string) string {
-	productClient := http.Client{
-		Timeout: 2 * time.Second,
-	}
+	e.Static("/", "../asset")
+	e.Any("/socket.io/", func(context echo.Context) error {
+		server.ServeHTTP(context.Response(), context.Request())
+		return nil
+	})
+	e.POST("/createRoom", func(context echo.Context) error {
+		room := context.FormValue("room")
+		server.JoinRoom("/", room, nil)
+		return nil
+	})
+	e.Logger.Fatal(e.Start(":8000"))
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return "Something is wrong"
-	}
-	res, getErr := productClient.Do(req)
-	if getErr != nil {
-		return "Something is wrong"
-	}
-	if res.Body != nil {
-		defer func(Body io.ReadCloser) {
-			err := Body.Close()
-			if err != nil {
-
-			}
-		}(res.Body)
-	}
-
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		return "Something is wrong"
-	}
-
-	return string(body)
 }
